@@ -1,0 +1,14 @@
+# Nümunə 5: sinif, yaradıcı, metod və miras
+sinif Heyvan:
+    funksiya yarat(özü, ad):
+        özü.ad = ad
+
+    funksiya danış(özü):
+        yaz özü.ad + " səs çıxarır"
+
+sinif Pişik miras Heyvan:
+    funksiya danış(özü):
+        yaz özü.ad + " miyoldayır"
+
+p = Pişik("Mırmır")
+p.danış()

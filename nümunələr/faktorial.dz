@@ -1,0 +1,8 @@
+# Nümunə 4: funksiya və rekursiya
+funksiya faktorial(n):
+    əgər n <= 1:
+        qaytar 1
+    əks halda:
+        qaytar n * faktorial(n - 1)
+
+yaz faktorial(5)

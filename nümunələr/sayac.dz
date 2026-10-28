@@ -1,0 +1,6 @@
+# Nümunə 3: dövrlər və aralıq
+hər i içində aralıq(1, 6):
+    əgər i % 2 == 0:
+        yaz i + " cütdür"
+    əks halda:
+        yaz i + " təkdir"

@@ -1,0 +1,11 @@
+# Nümunə 6: siyahı, lüğət və daxili funksiyalar
+rəqəmlər = [1, 2, 3, 4, 5]
+
+yaz uzunluq(rəqəmlər)
+yaz rəqəmlər[0]
+
+profil = {"ad": "Aytən", "yas": 25}
+yaz profil["ad"]
+
+əlavə(rəqəmlər, 6)
+yaz uzunluq(rəqəmlər)

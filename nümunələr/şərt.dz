@@ -1,0 +1,22 @@
+# Mərhələ 4 nümunəsi: Şərt operatorları və məntiqi ifadələr
+
+bal = 85
+
+əgər bal >= 90:
+    yaz "Qiymət: Əla"
+yoxsa əgər bal >= 70 və bal < 90:
+    yaz "Qiymət: Yaxşı"
+yoxsa əgər bal >= 50:
+    yaz "Qiymət: Kafi"
+əks halda:
+    yaz "Qiymət: Qeyri-kafi"
+
+# Qısa qapanma (short-circuit) yoxlanışı
+# Sağ tərəf hesablanmır, sıfıra bölünmə xətası baş vermir:
+yoxla_ve = yalan və (10 / 0 == 0)
+yaz "Qısa qapanma 'və' nəticəsi:"
+yaz yoxla_ve
+
+yoxla_ve_ya = doğru və ya (10 / 0 == 0)
+yaz "Qısa qapanma 'və ya' nəticəsi:"
+yaz yoxla_ve_ya

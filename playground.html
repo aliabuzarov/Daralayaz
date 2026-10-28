@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dərələyəz — Onlayn Proqramlaşdırma Mühiti (Playground)</title>
+    <meta name="description" content="Azərbaycan dilində proqramlaşdırma dili olan Dərələyəz üçün interaktiv brauzer meydançası.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/pyodide/v0.25.0/full/pyodide.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-secondary: #121826;
+            --bg-card: rgba(22, 30, 46, 0.7);
+            --border-color: rgba(255, 255, 255, 0.08);
+            --accent-cyan: #00d2ff;
+            --accent-emerald: #00f2a9;
+            --accent-gradient: linear-gradient(135deg, #00d2ff 0%, #00f2a9 100%);
+            --text-primary: #f0f4fc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --terminal-bg: #070a10;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            background-image: 
+                radial-gradient(circle at 15% 15%, rgba(0, 210, 255, 0.08) 0%, transparent 40%),
+                radial-gradient(circle at 85% 85%, rgba(0, 242, 169, 0.08) 0%, transparent 40%);
+        }
+
+        header {
+            padding: 1.25rem 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            backdrop-filter: blur(12px);
+            background: rgba(10, 14, 23, 0.8);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .brand-icon {
+            width: 36px;
+            height: 36px;
+            background: var(--accent-gradient);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #050a12;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 16px rgba(0, 210, 255, 0.3);
+        }
+
+        .brand-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .brand-badge {
+            font-size: 0.75rem;
+            padding: 0.2rem 0.6rem;
+            background: rgba(0, 210, 255, 0.15);
+            border: 1px solid rgba(0, 210, 255, 0.3);
+            border-radius: 999px;
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .select-example {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 0.6rem 1rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        .select-example:hover, .select-example:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 2px rgba(0, 210, 255, 0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.65rem 1.4rem;
+            border-radius: 8px;
+            font-family: inherit;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--accent-gradient);
+            color: #050a12;
+            box-shadow: 0 4px 16px rgba(0, 242, 169, 0.25);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(0, 242, 169, 0.4);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            padding: 1.5rem 2rem;
+            max-width: 1600px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        @media (max-width: 960px) {
+            main {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(16px);
+        }
+
+        .panel-header {
+            padding: 0.9rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            background: rgba(18, 24, 38, 0.6);
+        }
+
+        .panel-title {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .panel-tabs {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-family: inherit;
+            font-size: 0.85rem;
+            font-weight: 500;
+            padding: 0.35rem 0.75rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tab-btn.active {
+            background: rgba(0, 210, 255, 0.15);
+            color: var(--accent-cyan);
+            font-weight: 600;
+        }
+
+        .editor-container {
+            flex: 1;
+            display: flex;
+            position: relative;
+            min-height: 480px;
+        }
+
+        textarea#editor {
+            width: 100%;
+            height: 100%;
+            background: transparent;
+            color: #e2e8f0;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            padding: 1.25rem;
+            border: none;
+            outline: none;
+            resize: none;
+            white-space: pre;
+            tab-size: 4;
+        }
+
+        .terminal {
+            flex: 1;
+            background: var(--terminal-bg);
+            padding: 1.25rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: #38bdf8;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            min-height: 480px;
+        }
+
+        .terminal.error {
+            color: #f87171;
+        }
+
+        .status-bar {
+            padding: 0.6rem 1.25rem;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(10, 14, 23, 0.5);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #eab308;
+            display: inline-block;
+            margin-right: 0.4rem;
+        }
+
+        .status-dot.ready {
+            background: #22c55e;
+            box-shadow: 0 0 8px #22c55e;
+        }
+
+        footer {
+            padding: 1rem 2rem;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="brand">
+            <div class="brand-icon">D</div>
+            <div class="brand-title">Dərələyəz</div>
+            <span class="brand-badge">Playground v1.0</span>
+        </div>
+        <div class="header-actions">
+            <select id="exampleSelector" class="select-example">
+                <option value="heyvan">Nümunə: Siniflər və Miras (heyvan.dz)</option>
+                <option value="faktorial">Nümunə: Funksiyalar və Rekursiya (faktorial.dz)</option>
+                <option value="sayac">Nümunə: Dövrlər və Şərt (sayac.dz)</option>
+                <option value="hesabat">Nümunə: Riyaziyyat və Şərt (hesabat.dz)</option>
+                <option value="siyahı_lüğət">Nümunə: Siyahı və Lüğət (siyahı_lüğət.dz)</option>
+                <option value="şərt">Nümunə: Short-circuit və Şərtlər (şərt.dz)</option>
+            </select>
+            <button id="transpileBtn" class="btn btn-secondary">Python-a Çevir</button>
+            <button id="runBtn" class="btn btn-primary">İcra Et (F5)</button>
+        </div>
+    </header>
+
+    <main>
+        <section class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Mənbə Kodu (.dz)</span>
+                <span id="charCount" style="font-size: 0.8rem; color: var(--text-muted);">0 simvol</span>
+            </div>
+            <div class="editor-container">
+                <textarea id="editor" spellcheck="false" placeholder="Dərələyəz kodunuzu bura daxil edin..."></textarea>
+            </div>
+            <div class="status-bar">
+                <span>Tab: 4 boşluq | Kodlama: UTF-8</span>
+                <span>Dərələyəz Standartı</span>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <span class="panel-title">Nəticə</span>
+                <div class="panel-tabs">
+                    <button class="tab-btn active" id="tabOutput">Çıxış</button>
+                    <button class="tab-btn" id="tabPython">Python Kodu</button>
+                </div>
+            </div>
+            <div id="outputArea" class="terminal">Dərələyəz mühiti yüklənir... Zəhmət olmasa gözləyin.</div>
+            <div class="status-bar">
+                <div>
+                    <span id="pyodideDot" class="status-dot"></span>
+                    <span id="pyodideStatus">Python WebAssembly mühərriki başladılır...</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        Dərələyəz Proqramlaşdırma Dili — Azərbaycan dilində açıq mənbəli interpretator.
+    </footer>
+
+    <script>
+        const EXAMPLES = {
+            heyvan: `# Nümunə 5: sinif, yaradıcı, metod və miras
+sinif Heyvan:
+    funksiya yarat(özü, ad):
+        özü.ad = ad
+
+    funksiya danış(özü):
+        yaz özü.ad + " səs çıxarır"
+
+sinif Pişik miras Heyvan:
+    funksiya danış(özü):
+        yaz özü.ad + " miyoldayır"
+
+p = Pişik("Mırmır")
+p.danış()`,
+
+            faktorial: `# Nümunə 4: funksiya və rekursiya
+funksiya faktorial(n):
+    əgər n <= 1:
+        qaytar 1
+    əks halda:
+        qaytar n * faktorial(n - 1)
+
+yaz "5! faktorial nəticəsi:"
+yaz faktorial(5)`,
+
+            sayac: `# Nümunə 3: dövrlər və aralıq
+hər i içində aralıq(1, 6):
+    əgər i % 2 == 0:
+        yaz i + " cütdür"
+    əks halda:
+        yaz i + " təkdir"`,
+
+            hesabat: `# Nümunə 2: riyazi əməllər və şərt
+a = 10
+b = 3
+
+yaz a + b
+yaz a - b
+yaz a * b
+yaz a / b
+yaz a % b
+yaz a ** b
+
+əgər a > b:
+    yaz a + " " + b + " dən böyükdür"
+əks halda:
+    yaz b + " " + a + " dən böyükdür və ya bərabərdir"`,
+
+            siyahı_lüğət: `# Nümunə 6: siyahı, lüğət və daxili funksiyalar
+rəqəmlər = [1, 2, 3, 4, 5]
+
+yaz "Siyahının ilkin uzunluğu:"
+yaz uzunluq(rəqəmlər)
+yaz "İlk element:"
+yaz rəqəmlər[0]
+
+profil = {"ad": "Aytən", "yas": 25}
+yaz "İstifadəçi adı: " + profil["ad"]
+
+əlavə(rəqəmlər, 6)
+yaz "Yeni uzunluq:"
+yaz uzunluq(rəqəmlər)`,
+
+            şərt: `# Şərt operatorları və qısa qapanma (short-circuit)
+bal = 85
+
+əgər bal >= 90:
+    yaz "Qiymət: Əla"
+yoxsa əgər bal >= 70 və bal < 90:
+    yaz "Qiymət: Yaxşı"
+yoxsa əgər bal >= 50:
+    yaz "Qiymət: Kafi"
+əks halda:
+    yaz "Qiymət: Qeyri-kafi"
+
+yoxla_ve = yalan və (10 / 0 == 0)
+yaz "Qısa qapanma nəticəsi:"
+yaz yoxla_ve`
+        };
+
+        const editor = document.getElementById("editor");
+        const outputArea = document.getElementById("outputArea");
+        const exampleSelector = document.getElementById("exampleSelector");
+        const runBtn = document.getElementById("runBtn");
+        const transpileBtn = document.getElementById("transpileBtn");
+        const tabOutput = document.getElementById("tabOutput");
+        const tabPython = document.getElementById("tabPython");
+        const pyodideStatus = document.getElementById("pyodideStatus");
+        const pyodideDot = document.getElementById("pyodideDot");
+        const charCount = document.getElementById("charCount");
+
+        let pyodideInstance = null;
+        let lastOutput = "";
+        let lastTranspiled = "";
+
+        // İnisializasiya
+        editor.value = EXAMPLES.heyvan;
+        updateCharCount();
+
+        editor.addEventListener("input", updateCharCount);
+
+        function updateCharCount() {
+            charCount.textContent = editor.value.length + " simvol";
+        }
+
+        exampleSelector.addEventListener("change", (e) => {
+            const key = e.target.value;
+            if (EXAMPLES[key]) {
+                editor.value = EXAMPLES[key];
+                updateCharCount();
+            }
+        });
+
+        // Tab keçidləri
+        tabOutput.addEventListener("click", () => {
+            tabOutput.classList.add("active");
+            tabPython.classList.remove("active");
+            outputArea.textContent = lastOutput || "İcra üçün 'İcra Et' düyməsinə basın.";
+            outputArea.classList.remove("error");
+        });
+
+        tabPython.addEventListener("click", () => {
+            showTranspiled();
+        });
+
+        async function initPyodideEngine() {
+            try {
+                pyodideInstance = await loadPyodide();
+                pyodideDot.classList.add("ready");
+                pyodideStatus.textContent = "Hazırdır (Pyodide WebAssembly)";
+                outputArea.textContent = "Mühit hazırdır! Kodu icra etmək üçün 'İcra Et' düyməsini sıxın.";
+            } catch (err) {
+                pyodideStatus.textContent = "Pyodide yüklənmədi: " + err.message;
+                outputArea.textContent = "Xəta: Pyodide mühərriki yüklənə bilmədi.";
+            }
+        }
+        initPyodideEngine();
+
+        async function runCode() {
+            tabOutput.click();
+            outputArea.textContent = "İcra olunur...";
+            outputArea.classList.remove("error");
+
+            if (!pyodideInstance) {
+                outputArea.textContent = "Zəhmət olmasa Pyodide mühərrikinin tam yüklənməsini gözləyin.";
+                return;
+            }
+
+            try {
+                // Kodları və kitabxanaları yükləyirik
+                const code = editor.value;
+                pyodideInstance.globals.set("user_dz_code", code);
+                
+                // Mənbə kodlarını oxuyuruq
+                const lexerResp = await fetch("lexer.py");
+                const lexerCode = await lexerResp.text();
+                const parserResp = await fetch("parser.py");
+                const parserCode = await parserResp.text();
+                const interpResp = await fetch("interpreter.py");
+                const interpCode = await interpResp.text();
+
+                pyodideInstance.runPython(`
+import sys, io
+with open("lexer.py", "w") as f: f.write(${JSON.stringify(lexerCode)})
+with open("parser.py", "w") as f: f.write(${JSON.stringify(parserCode)})
+with open("interpreter.py", "w") as f: f.write(${JSON.stringify(interpCode)})
+
+import io, sys
+from lexer import Lexer
+from parser import Parser
+from interpreter import Interpreter
+
+_stdout_buffer = io.StringIO()
+sys.stdout = _stdout_buffer
+
+try:
+    tokens = Lexer(user_dz_code).tokenize()
+    stmts = Parser(tokens).parse()
+    interp = Interpreter()
+    interp.run(stmts)
+    run_result = _stdout_buffer.getvalue()
+    is_err = False
+except Exception as e:
+    run_result = str(e)
+    is_err = True
+finally:
+    sys.stdout = sys.__stdout__
+`);
+                const result = pyodideInstance.globals.get("run_result");
+                const isErr = pyodideInstance.globals.get("is_err");
+
+                lastOutput = result;
+                outputArea.textContent = result || "(Çıxış yoxdur)";
+                if (isErr) {
+                    outputArea.classList.add("error");
+                } else {
+                    outputArea.classList.remove("error");
+                }
+            } catch (err) {
+                lastOutput = err.message;
+                outputArea.textContent = "Xəta: " + err.message;
+                outputArea.classList.add("error");
+            }
+        }
+
+        async function showTranspiled() {
+            tabPython.classList.add("active");
+            tabOutput.classList.remove("active");
+            outputArea.classList.remove("error");
+            outputArea.textContent = "Python koduna çevrilir...";
+
+            if (!pyodideInstance) {
+                outputArea.textContent = "Zəhmət olmasa mühərrikin yüklənməsini gözləyin.";
+                return;
+            }
+
+            try {
+                const transpilerResp = await fetch("transpiler.py");
+                const transpilerCode = await transpilerResp.text();
+                pyodideInstance.globals.set("user_dz_code", editor.value);
+
+                pyodideInstance.runPython(`
+with open("transpiler.py", "w") as f: f.write(${JSON.stringify(transpilerCode)})
+from transpiler import transpile_source
+try:
+    py_output = transpile_source(user_dz_code)
+except Exception as e:
+    py_output = "Transpilasiya xətası: " + str(e)
+`);
+                const pyOut = pyodideInstance.globals.get("py_output");
+                lastTranspiled = pyOut;
+                outputArea.textContent = pyOut;
+            } catch (err) {
+                outputArea.textContent = "Xəta: " + err.message;
+            }
+        }
+
+        runBtn.addEventListener("click", runCode);
+        transpileBtn.addEventListener("click", showTranspiled);
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "F5" || (e.ctrlKey && e.key === "Enter")) {
+                e.preventDefault();
+                runCode();
+            }
+        });
+    </script>
+</body>
+</html>

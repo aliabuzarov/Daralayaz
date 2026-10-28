@@ -1,0 +1,3 @@
+# Nümunə 1: giriş və çıxış
+ad = oxu("Adınızı daxil edin: ")
+yaz "Salam, " + ad

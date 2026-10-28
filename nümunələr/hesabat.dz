@@ -1,0 +1,15 @@
+# Nümunə 2: riyazi emeller və şərti
+a = 10
+b = 3
+
+yaz a + b
+yaz a - b
+yaz a * b
+yaz a / b
+yaz a % b
+yaz a ** b
+
+əgər a > b:
+    yaz a + " " + b + " den boyukdur"
+əks halda:
+    yaz b + " " + a + " den boyukdur veya beraberdir"
